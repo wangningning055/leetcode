@@ -600,7 +600,7 @@ bool FindMax(map<int, int>& maps)
 		cout << vecMaps[i].first << " |" << vecMaps[i].second << "|" << endl;
 	}
 }
-void FindNearstParent(TreeNode* node, int p, int q)
+bool FindNearstParent(TreeNode* node, int p, int q)
 {
 	// 			    20
 	// 		16   	          29
@@ -608,9 +608,105 @@ void FindNearstParent(TreeNode* node, int p, int q)
 	//11   13   17   19    21   23   30   35
 
 	// 11, 13, 12, 17, 19, 18, 16, 21, 23, 22, 30, 35, 31, 29, 20
-	if(node->left != NULL) FindNearstParent(node->left, p, q);
-	if(node->right != NULL) FindNearstParent(node->right, p, q);
-	cout << node->val << " ";
+	bool a = false;
+	bool b = false;
+	if(node->left != NULL) a = FindNearstParent(node->left, p, q);
+	if(node->right != NULL) b = FindNearstParent(node->right, p, q);
+	if(a && b)
+		cout << "Find : " << node->val << endl;
+	if(node->val == p || a) return true;	
+	if(node->val == q || b) return true;
+	return false;
+
+}
+void InsertSearchTree(TreeNode*& node, int val, TreeNode* parent)
+{
+	if(node == NULL)
+	{
+		node = new TreeNode(val);
+		bool isL = parent->left == NULL;
+		bool isR = parent->right == NULL;
+		cout << "parent is " << parent->val << "  |" <<isL << isR << endl;
+		return;
+	}
+	if(node->val >= val) InsertSearchTree(node->left, val, node);
+
+	if(node->val < val) InsertSearchTree(node->right, val, node);
+}
+
+class DeleSearchTree
+{
+	public:
+		static void FindSearchTree(TreeNode* node, int val, vector<int>& vec)
+		{
+			// 			    20
+			// 		16   	          29
+			// 	12		  18         22		  31
+			//11   13   17   19    21   23   30   35
+			// 11 12 13 16 17 18 19 20 21 22 23 29 30 31 35
+			if(node->left != NULL) FindSearchTree(node->left, val, vec);
+			if(node->val != val)
+				vec.push_back(node->val);
+			cout << node->val << " ";
+			if(node->right != NULL) FindSearchTree(node->right, val, vec);
+		}
+		static TreeNode* CreatSearchTree(vector<int>& vec)
+		{
+			if(vec.empty()) return NULL;
+			if(vec.size() <= 2)
+			{
+				if(vec.size() == 2)
+				{
+					TreeNode* node1 = new TreeNode(vec[1]);
+					node1->left = new TreeNode(vec[0]);
+					return node1;
+				}
+				if(vec.size() == 1)
+				{
+					TreeNode* node = new TreeNode(vec[0]);
+					return node;
+				}
+			}
+
+			int index = vec.size() / 2;
+			TreeNode* node = new TreeNode(vec[index]);
+			vector<int> aaa = vector<int>(vec.begin(), vec.begin() + index);
+			vector<int> bbb = vector<int>(vec.begin() + index + 1, vec.end());
+			for(int i = 0; i < aaa.size(); i++)
+			{
+					cout << aaa[i] << " " ;
+			}
+			cout << endl;
+			for(int i = 0; i < bbb.size(); i++)
+			{
+					cout << bbb[i] << " " ;
+			}
+			cout << "___________________" << endl;
+			node->left = CreatSearchTree(aaa);
+			node->right = CreatSearchTree(bbb);
+			// node->left = CreatSearchTree();
+			// node->right = CreatSearchTree();
+			return node;
+
+
+		}
+};
+
+void ChangeToAddTree(TreeNode* node, int& add)
+{
+	// 			    20
+	// 		16   	              29
+	// 	12		  18         22		  31
+	//11   13   17   19    21   23   30   35
+
+	//35 31 30 29 23 22 21 20 19 18 17 16 13 12 11
+	// 11 12 13 16 17 18 19 20 21 22 23 29 30 31 35
+	if(node->right != NULL) ChangeToAddTree(node->right, add);
+	add += node->val;
+	node->val = add;
+	cout << " " << add;
+	if(node->left != NULL) ChangeToAddTree(node->left, add);
+
 }
 int main()
 {
@@ -671,7 +767,23 @@ int main()
 	// {
 	// 	cout << vec[i] << " " ;
 	// }
-	FindNearstParent(head);
+	// bool a = false;
+	// bool b = false;
+	// FindNearstParent(head, 11 ,13);
+	// InsertSearchTree(head, 16, NULL);
+	
+	// vector<int> vec;
+	// vector<int> vec2;
+
+	// DeleSearchTree::FindSearchTree(head, 17, vec);
+	// TreeNode* node = DeleSearchTree::CreatSearchTree(vec);
+	// DeleSearchTree::FindSearchTree(node, 0, vec2);
+	// FindLevel(node);
+
+	int num = 0;
+	ChangeToAddTree(head, num);
+	cout << endl;
+	FindLevel(head);
 	cout << "执行完毕 : " << endl;
 	return 0;
 }
